@@ -34,7 +34,9 @@ case $i in
     DIR="${i#*=}"
     # ~/ paths have to be expanded manually
     DIR="${DIR/#\~/$HOME}"
-    directory="$(readlink -m $DIR)"
+    # Need to use greadlink on macOS
+    # directory="$(readlink -m $DIR)"
+    directory="$(greadlink -m $DIR)"
     shift # past argument=value
     ;;
     -s=*|--serial=*)
@@ -133,7 +135,9 @@ if [[ -z "$DIR" || -z "$serial" ]]; then
     DIR=$REPLY
     if [[ -z $DIR ]]; then DIR="myopenaps"; fi
     echo "Ok, $DIR it is."
-    directory="$(readlink -m $DIR)"
+    # Need to use greadlink on macOS
+    # directory="$(readlink -m $DIR)"
+    directory="$(greadlink -m $DIR)"
     read -p "What is your pump serial number (numbers only)? " -r
     serial=$REPLY
     echo "Ok, $serial it is."
@@ -368,8 +372,13 @@ cat preferences.json
 git add preferences.json
 
 # enable log rotation
-sudo cp $HOME/src/oref0/logrotate.openaps /etc/logrotate.d/openaps || die "Could not cp /etc/logrotate.d/openaps"
-sudo cp $HOME/src/oref0/logrotate.rsyslog /etc/logrotate.d/rsyslog || die "Could not cp /etc/logrotate.d/rsyslog"
+# Do not have logrotate on Mac - use newsyslog instead
+# sudo cp $HOME/src/oref0/logrotate.openaps /etc/logrotate.d/openaps || die "Could not cp /etc/logrotate.d/openaps"
+# sudo cp $HOME/src/oref0/logrotate.rsyslog /etc/logrotate.d/rsyslog || die "Could not cp /etc/logrotate.d/rsyslog"
+
+# enable log rotation
+# Do not have logrotate on Mac - use newsyslog instead
+sudo cp $HOME/src/oref0/openaps.conf /etc/newsyslog.d/openaps.conf || die "Could not cp /etc/newsyslog.d/openaps.conf"
 
 test -d /var/log/openaps || sudo mkdir /var/log/openaps && sudo chown $USER /var/log/openaps || die "Could not create /var/log/openaps"
 
